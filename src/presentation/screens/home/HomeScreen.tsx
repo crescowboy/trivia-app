@@ -87,6 +87,12 @@ export const HomeScreen = ({navigation}: any) => {
 
         <TouchableOpacity
           style={styles.authButton}
+          onPress={() => navigation.navigate('SearchMoviesScreen')}>
+          <Text style={styles.triviaButtonText}>Search Movies</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.authButton}
           onPress={() => navigation.navigate('RankingScreen')}>
           <Text style={styles.triviaButtonText}>Ranking</Text>
         </TouchableOpacity>

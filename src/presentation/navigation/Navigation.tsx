@@ -4,6 +4,7 @@ import {DetailsScreen} from '../screens/details/DetailsScreen';
 import {TriviaScreen} from '../screens/trivia/TriviaScreen';
 import {AuthScreen} from '../screens/auth/AuthScreen';
 import RankingScreen from '../screens/ranking/RankingScree';
+import {SearchMoviesScreen} from '../screens/search/SearchMoviesScreen';
 
 export type RootStackParams = {
   Home: undefined;
@@ -24,6 +25,7 @@ export const Navigation = () => {
       <Stack.Screen name="TriviaScreen" component={TriviaScreen} />
       <Stack.Screen name="AuthScreen" component={AuthScreen} />
       <Stack.Screen name="RankingScreen" component={RankingScreen} />
+      <Stack.Screen name="SearchMoviesScreen" component={SearchMoviesScreen} />
     </Stack.Navigator>
   );
 };
