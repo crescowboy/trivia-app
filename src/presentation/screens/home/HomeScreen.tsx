@@ -85,18 +85,6 @@ export const HomeScreen = ({navigation}: any) => {
           <Text style={styles.triviaButtonText}>Cerrar sesión</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.authButton}
-          onPress={() => navigation.navigate('SearchMoviesScreen')}>
-          <Text style={styles.triviaButtonText}>Search Movies</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.authButton}
-          onPress={() => navigation.navigate('RankingScreen')}>
-          <Text style={styles.triviaButtonText}>Ranking</Text>
-        </TouchableOpacity>
-
         <HorizontalCarousel
           movies={popular}
           title="Populares"
