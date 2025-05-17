@@ -49,23 +49,17 @@ export const TriviaScreen = ({navigation, route}: any) => {
         const response = await movieDBFetcher.get('/popular');
         const movies = response.results;
         const shuffledMovies = movies.sort(() => Math.random() - 0.5);
-
-        const generatedQuestions: any[] = [];
+        const generated: any[] = [];
         let index = 0;
-
-        while (
-          generatedQuestions.length < 10 &&
-          index < shuffledMovies.length
-        ) {
+        while (generated.length < 10 && index < shuffledMovies.length) {
           const movie = shuffledMovies[index];
-          const questionType = Math.floor(Math.random() * 4); // 0: year, 1: title, 2: language, 3: genre
-          let question = null;
-
-          const generateQuestion = (type: number) => {
-            switch (type) {
+          const type = Math.floor(Math.random() * 4);
+          let q = null;
+          const make = (t: number) => {
+            switch (t) {
               case 0:
                 return {
-                  question: `¿En qué año se estrenó esta película?`,
+                  question: '¿En qué año se estrenó esta película?',
                   poster: movie.poster_path,
                   options: [
                     movie.release_date.split('-')[0],
@@ -76,21 +70,21 @@ export const TriviaScreen = ({navigation, route}: any) => {
                   answer: movie.release_date.split('-')[0]
                 };
               case 1:
-                const otherMovies = shuffledMovies
-                  .filter((m: any) => m.id !== movie.id)
+                const others = shuffledMovies
+                  .filter(m => m.id !== movie.id)
                   .slice(0, 3)
-                  .map((m: any) => m.title);
+                  .map(m => m.title);
                 return {
-                  question: `¿Cuál es el título de esta película?`,
+                  question: '¿Cuál es el título de esta película?',
                   poster: movie.poster_path,
-                  options: [movie.title, ...otherMovies].sort(
+                  options: [movie.title, ...others].sort(
                     () => Math.random() - 0.5
                   ),
                   answer: movie.title
                 };
               case 2:
                 return {
-                  question: `¿Cuál es el idioma original de esta película?`,
+                  question: '¿Cuál es el idioma original de esta película?',
                   poster: movie.poster_path,
                   options: ['jp', 'es', 'fr', movie.original_language]
                     .slice(0, 4)
@@ -98,87 +92,48 @@ export const TriviaScreen = ({navigation, route}: any) => {
                   answer: movie.original_language
                 };
               case 3:
-                const genreName = genreMap[movie.genre_ids[0]] || 'Desconocido';
-                const otherGenres = Object.values(genreMap)
-                  .filter(g => g !== genreName)
+                const genre = genreMap[movie.genre_ids[0]] || 'Desconocido';
+                const otherG = Object.values(genreMap)
+                  .filter(g => g !== genre)
                   .sort(() => Math.random() - 0.5)
                   .slice(0, 3);
                 return {
-                  question: `¿Cuál es el género principal de esta película?`,
+                  question: '¿Cuál es el género principal de esta película?',
                   poster: movie.poster_path,
-                  options: [genreName, ...otherGenres].sort(
-                    () => Math.random() - 0.5
-                  ),
-                  answer: genreName
+                  options: [genre, ...otherG].sort(() => Math.random() - 0.5),
+                  answer: genre
                 };
               default:
                 return null;
             }
           };
-
-          if (category === 'general') {
-            question = generateQuestion(questionType);
-          } else if (
-            category === 'releaseYear' &&
-            [0, 1, 2, 3].includes(questionType)
-          ) {
-            question = generateQuestion(0);
-          } else if (
-            category === 'title' &&
-            [0, 1, 2, 3].includes(questionType)
-          ) {
-            question = generateQuestion(1);
-          } else if (
-            category === 'language' &&
-            [0, 1, 2, 3].includes(questionType)
-          ) {
-            question = generateQuestion(2);
-          } else if (
-            category === 'genre' &&
-            [0, 1, 2, 3].includes(questionType)
-          ) {
-            question = generateQuestion(3);
-          }
-
-          if (question) {
-            generatedQuestions.push(question);
-          }
-
+          if (category === 'general') q = make(type);
+          else if (category === 'releaseYear') q = make(0);
+          else if (category === 'title') q = make(1);
+          else if (category === 'language') q = make(2);
+          else if (category === 'genre') q = make(3);
+          if (q) generated.push(q);
           index++;
         }
-
-        setQuestions(generatedQuestions);
-      } catch (error) {
-        console.error('Error fetching questions:', error);
+        setQuestions(generated);
+      } catch (e) {
       } finally {
         setLoading(false);
       }
     };
-
     fetchQuestions();
   }, [category]);
 
   useEffect(() => {
-    if (timeLeft === 0) {
-      handleAnswer(null);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setTimeLeft(timeLeft - 1);
-    }, 1000);
-
+    if (timeLeft === 0) return handleAnswer(null);
+    const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     return () => clearTimeout(timer);
   }, [timeLeft]);
 
-  const handleAnswer = (selectedOption: string | null) => {
-    const currentQuestion = questions[currentQuestionIndex];
-    if (selectedOption === currentQuestion?.answer) {
-      setScore(score + 1);
-    }
-
-    setSelectedOption(selectedOption);
-
+  const handleAnswer = (opt: string | null) => {
+    const cur = questions[currentQuestionIndex];
+    if (opt === cur?.answer) setScore(score + 1);
+    setSelectedOption(opt);
     setTimeout(() => {
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -191,64 +146,76 @@ export const TriviaScreen = ({navigation, route}: any) => {
     }, 1000);
   };
 
-  if (loading) {
+  if (loading)
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" />
         <Text style={styles.loaderText}>Cargando preguntas...</Text>
       </View>
     );
-  }
 
   if (finished) {
+    const isWinner = score > 5;
     return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Trivia Finalizada</Text>
+      <ScrollView
+        contentContainerStyle={[styles.container, styles.finishedContainer]}>
+        <Text
+          style={[
+            styles.title,
+            isWinner ? styles.titleWinner : styles.titleLoser
+          ]}>
+          {' '}
+          {isWinner ? '¡Felicidades!' : 'Inténtalo de nuevo!'}
+        </Text>
         <Text style={styles.score}>
           Tu puntuación: {score}/{questions.length}
         </Text>
+        <Image
+          source={
+            isWinner
+              ? require('../../../assets/Achievement-bro.png')
+              : require('../../../assets/Bad-idea-pana.png')
+          }
+          style={styles.achievementImage}
+          resizeMode="contain"
+        />
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.buttonText}>
-            Regresar a la pantalla principal
-          </Text>
+          <Text style={styles.buttonText}>Regresar al inicio</Text>
         </TouchableOpacity>
       </ScrollView>
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-
+  const current = questions[currentQuestionIndex];
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.timerContainer}>
         <Text style={styles.timerText}>{timeLeft}s</Text>
       </View>
       <Text style={styles.title}>Trivia de Películas</Text>
-      {currentQuestion.poster && (
+      {current.poster && (
         <Image
-          source={{
-            uri: `https://image.tmdb.org/t/p/w500${currentQuestion.poster}`
-          }}
+          source={{uri: `https://image.tmdb.org/t/p/w500${current.poster}`}}
           style={styles.poster}
         />
       )}
-      <Text style={styles.question}>{currentQuestion.question}</Text>
-      {currentQuestion.options.map((option: string, index: number) => (
+      <Text style={styles.question}>{current.question}</Text>
+      {current.options.map((opt: string, i: number) => (
         <TouchableOpacity
-          key={index}
+          key={i}
           style={[
             styles.optionButton,
-            selectedOption === option
-              ? option === currentQuestion.answer
+            selectedOption === opt
+              ? opt === current.answer
                 ? styles.correctOption
                 : styles.incorrectOption
               : null
           ]}
-          onPress={() => handleAnswer(option)}
+          onPress={() => handleAnswer(opt)}
           disabled={!!selectedOption}>
-          <Text style={styles.optionText}>{option}</Text>
+          <Text style={styles.optionText}>{opt}</Text>
         </TouchableOpacity>
       ))}
       <Text style={styles.score}>
@@ -281,16 +248,47 @@ const styles = StyleSheet.create({
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    height: '100%'
   },
   loaderText: {
     marginTop: 10,
     fontSize: 16
   },
+  finishedContainer: {
+    justifyContent: 'center'
+  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center'
+  },
+  titleWinner: {
+    color: '#28a745'
+  },
+  titleLoser: {
+    color: '#92E3A9'
+  },
+  score: {
+    fontSize: 18,
     marginBottom: 20
+  },
+  achievementImage: {
+    width: 300,
+    height: 300,
+    marginVertical: 20
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: '#92E3A9',
+    paddingVertical: 14,
+    paddingHorizontal: 30,
+    borderRadius: 8
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16
   },
   poster: {
     width: 200,
@@ -319,19 +317,5 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     textAlign: 'center'
-  },
-  score: {
-    marginTop: 20,
-    fontSize: 16
-  },
-  button: {
-    marginTop: 20,
-    backgroundColor: '#007bff',
-    padding: 12,
-    borderRadius: 8
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16
   }
 });

@@ -4,7 +4,8 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import {
   getFirestore,
@@ -13,6 +14,8 @@ import {
   query,
   orderBy
 } from 'firebase/firestore';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {FullScreenLoaders} from '../../components/loaders/FullScreenLoaders';
 
 const RankingScreen = () => {
   const [ranking, setRanking] = useState<any[]>([]);
@@ -22,7 +25,7 @@ const RankingScreen = () => {
     const fetchScores = async () => {
       const db = getFirestore();
       const scoresRef = collection(db, 'scores');
-      const q = query(scoresRef, orderBy('createdAt', 'desc')); // Ordenado por fecha
+      const q = query(scoresRef, orderBy('createdAt', 'desc'));
       const querySnapshot = await getDocs(q);
 
       const scoresByUser = new Map();
@@ -47,7 +50,6 @@ const RankingScreen = () => {
           const userData = scoresByUser.get(uid);
           userData.total += 1;
           userData.sum += score;
-          // El primer documento es el más reciente por el orden
         }
       });
 
@@ -56,7 +58,6 @@ const RankingScreen = () => {
         avgScore: Math.round(user.sum / user.total)
       }));
 
-      // Ordenar por puntaje promedio descendente
       rankingArray.sort((a, b) => b.avgScore - a.avgScore);
 
       setRanking(rankingArray);
@@ -66,10 +67,7 @@ const RankingScreen = () => {
     fetchScores();
   }, []);
 
-  if (loading)
-    return (
-      <ActivityIndicator style={{marginTop: 50}} size="large" color="#007bff" />
-    );
+  if (loading) return <FullScreenLoaders />;
 
   return (
     <View style={styles.container}>
@@ -78,15 +76,24 @@ const RankingScreen = () => {
         data={ranking}
         keyExtractor={(item, index) => item.uid || index.toString()}
         renderItem={({item, index}) => (
-          <View style={styles.item}>
-            <Text style={styles.position}>{index + 1}.</Text>
-            <View style={{flex: 1, marginLeft: 10}}>
-              <Text style={styles.name}>{item.displayName || item.email}</Text>
-              <Text style={styles.detail}>🎮 Partidas: {item.total}</Text>
-              <Text style={styles.detail}>
-                📈 Promedio: {item.avgScore} pts
+          <View style={styles.row}>
+            <Text style={styles.position}>{index + 1}</Text>
+
+            <Ionicons
+              name="person-circle-outline"
+              size={30}
+              color="#007bff"
+              style={styles.icon}
+            />
+
+            <View style={styles.userInfo}>
+              <Text numberOfLines={1} style={styles.email}>
+                {item.displayName || item.email}
               </Text>
-              <Text style={styles.detail}>⏱ Último: {item.lastScore} pts</Text>
+            </View>
+
+            <View style={styles.scoreInfo}>
+              <Text style={styles.score}>{item.avgScore} pts</Text>
             </View>
           </View>
         )}
@@ -100,32 +107,49 @@ export default RankingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: '#fff',
     paddingTop: 60,
-    backgroundColor: '#fff'
+    paddingHorizontal: 16
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 20,
-    textAlign: 'center'
+    color: '#333'
   },
-  item: {
+  row: {
     flexDirection: 'row',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderColor: '#eee'
+    alignItems: 'center',
+    backgroundColor: '#F0F8FF',
+    marginBottom: 10,
+    padding: 12,
+    borderRadius: 10,
+    elevation: 2
   },
   position: {
-    fontSize: 16,
-    fontWeight: 'bold'
+    width: 30,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#007bff'
   },
-  name: {
-    fontSize: 16,
-    fontWeight: 'bold'
+  icon: {
+    marginHorizontal: 8
   },
-  detail: {
-    fontSize: 14,
-    color: '#555'
+  userInfo: {
+    flex: 1
+  },
+  email: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333'
+  },
+  scoreInfo: {
+    alignItems: 'flex-end'
+  },
+  score: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#28a745'
   }
 });

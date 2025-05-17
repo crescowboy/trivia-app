@@ -23,7 +23,7 @@ export const Navigation = () => {
       <Stack.Screen name="Details" component={DetailsScreen} />
       <Stack.Screen name="TriviaScreen" component={TriviaScreen} />
       <Stack.Screen name="TriviaDetail" component={TriviaDetailScreen} />
-      <Stack.Screen name="createTrivia" component={CreateTriviaScreen} />
+      <Stack.Screen name="CreateTriviaScreen" component={CreateTriviaScreen} />
     </Stack.Navigator>
   );
 };

@@ -5,7 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  TouchableOpacity
+  TouchableOpacity,
+  Image
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {doc, getDoc} from 'firebase/firestore';
@@ -58,10 +59,10 @@ export const TriviaDetailScreen = () => {
 
   const handleAnswer = (option: string | null) => {
     const current = trivia.questions[currentQuestionIndex];
-    if (option === current.correctAnswer) {
+    const correctOption = current.options[current.correctIndex];
+    if (option === correctOption) {
       setScore(prev => prev + 1);
     }
-
     setSelectedOption(option);
 
     setTimeout(() => {
@@ -92,18 +93,35 @@ export const TriviaDetailScreen = () => {
   }
 
   if (finished) {
+    const isWinner = score > trivia.questions.length / 2;
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Trivia Finalizada</Text>
+      <ScrollView
+        contentContainerStyle={[styles.container, styles.finishedContainer]}>
+        <Text
+          style={[
+            styles.title,
+            isWinner ? styles.titleWinner : styles.titleLoser
+          ]}>
+          {isWinner ? '¡Felicidades!' : '¡Inténtalo de nuevo!'}
+        </Text>
         <Text style={styles.score}>
           Tu puntuación: {score}/{trivia.questions.length}
         </Text>
+        <Image
+          source={
+            isWinner
+              ? require('../../../assets/Achievement-bro.png')
+              : require('../../../assets/Bad-idea-pana.png')
+          }
+          style={styles.achievementImage}
+          resizeMode="contain"
+        />
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.goBack()}>
           <Text style={styles.buttonText}>Volver</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     );
   }
 
@@ -138,18 +156,34 @@ export const TriviaDetailScreen = () => {
         </Text>
       </View>
 
-      {current.options.map((option: string, index: number) => (
-        <TouchableOpacity
-          key={index}
-          style={[
-            styles.optionButton,
-            selectedOption === option && styles.selectedOption
-          ]}
-          onPress={() => handleAnswer(option)}
-          disabled={selectedOption !== null}>
-          <Text style={styles.optionText}>{option}</Text>
-        </TouchableOpacity>
-      ))}
+      {current.options.map((option: string, index: number) => {
+        // Solo pinta de rojo la opción seleccionada si es incorrecta
+        const isIncorrect =
+          selectedOption !== null &&
+          selectedOption === option &&
+          index !== current.correctIndex;
+
+        // Solo pinta de verde si la seleccionada es la correcta
+        const isCorrect =
+          selectedOption !== null &&
+          selectedOption === option &&
+          index === current.correctIndex;
+
+        return (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.optionButton,
+              selectedOption === option && styles.selectedOption,
+              isCorrect && styles.correctOption,
+              isIncorrect && styles.incorrectOption
+            ]}
+            onPress={() => handleAnswer(option)}
+            disabled={selectedOption !== null}>
+            <Text style={styles.optionText}>{option}</Text>
+          </TouchableOpacity>
+        );
+      })}
     </ScrollView>
   );
 };
@@ -218,6 +252,12 @@ const styles = StyleSheet.create({
   selectedOption: {
     backgroundColor: '#d1e7dd'
   },
+  correctOption: {
+    backgroundColor: '#4BB543'
+  },
+  incorrectOption: {
+    backgroundColor: '#ff3b30'
+  },
   optionText: {
     fontSize: 16
   },
@@ -226,7 +266,7 @@ const styles = StyleSheet.create({
     marginVertical: 10
   },
   button: {
-    backgroundColor: '#007aff',
+    backgroundColor: '#92E3A9',
     padding: 12,
     borderRadius: 8,
     marginTop: 20
@@ -239,5 +279,19 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 16,
     textAlign: 'center'
+  },
+  finishedContainer: {
+    justifyContent: 'center'
+  },
+  titleWinner: {
+    color: '#28a745'
+  },
+  titleLoser: {
+    color: '#92E3A9'
+  },
+  achievementImage: {
+    width: 300,
+    height: 300,
+    marginVertical: 20
   }
 });

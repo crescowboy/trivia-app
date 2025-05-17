@@ -13,6 +13,7 @@ import {useMovies} from '../../hooks/useMovies';
 import {movieSearchFetcher} from '../../../config/adapters/movieDB.adapter';
 import {Movie} from '../../../core/entities/movie.entity';
 import {MoviePoster} from '../../components/movies/MoviePoster';
+import {FullScreenLoaders} from '../../components/loaders/FullScreenLoaders';
 
 export const SearchMoviesScreen = ({navigation}: any) => {
   const {top} = useSafeAreaInsets();
@@ -55,11 +56,7 @@ export const SearchMoviesScreen = ({navigation}: any) => {
   }, [searchTerm, nowPlaying]);
 
   if (isLoding) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#007bff" />
-      </View>
-    );
+    return <FullScreenLoaders />;
   }
 
   return (

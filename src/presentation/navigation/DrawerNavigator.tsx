@@ -6,7 +6,7 @@ import {
 import {BottomTabs} from './BottomTabs';
 import {AuthScreen} from '../screens/auth/AuthScreen';
 import {useAuth} from '../../core/context/AuthContext';
-import {TouchableOpacity, Text, View} from 'react-native';
+import {TouchableOpacity, Text, View, StyleSheet, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Drawer = createDrawerNavigator();
@@ -16,117 +16,128 @@ function CustomDrawerContent(props: any) {
 
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{flex: 1}}>
-      <View style={{alignItems: 'center', marginVertical: 30}}>
-        <Icon name="person-circle-outline" size={80} color="#888" />
-        <Text style={{fontWeight: 'bold', fontSize: 18, marginTop: 10}}>
-          {user?.name || 'Invitado'}
-        </Text>
+      <View style={styles.header}>
+        <Icon name="person-circle-outline" size={90} color="#4F8EF7" />
+        <Text style={styles.username}>{user?.email || 'Invitado'}</Text>
       </View>
 
-      <View style={{paddingHorizontal: 20}}>
+      <View style={styles.menuSection}>
         {isAuthenticated ? (
-          <TouchableOpacity
+          <DrawerItem
+            icon="log-out-outline"
+            label="Cerrar sesión"
+            color="red"
             onPress={logout}
-            style={{
-              marginBottom: 20,
-              flexDirection: 'row',
-              alignItems: 'center'
-            }}>
-            <Icon
-              name="log-out-outline"
-              size={22}
-              color="red"
-              style={{marginRight: 10}}
-            />
-            <Text style={{color: 'red', fontWeight: 'bold'}}>
-              Cerrar sesión
-            </Text>
-          </TouchableOpacity>
+          />
         ) : (
-          <TouchableOpacity
+          <DrawerItem
+            icon="log-in-outline"
+            label="Iniciar sesión"
+            color="green"
             onPress={() => props.navigation.navigate('AuthScreen')}
-            style={{
-              marginBottom: 20,
-              flexDirection: 'row',
-              alignItems: 'center'
-            }}>
-            <Icon
-              name="log-in-outline"
-              size={22}
-              color="green"
-              style={{marginRight: 10}}
-            />
-            <Text style={{color: 'green', fontWeight: 'bold'}}>
-              Iniciar sesión
-            </Text>
-          </TouchableOpacity>
+          />
         )}
 
-        <View
-          style={{
-            borderBottomWidth: 1,
-            borderBottomColor: '#ccc',
-            marginVertical: 15
-          }}
-        />
+        <View style={styles.separator} />
 
-        <TouchableOpacity
+        <DrawerItem
+          icon="settings-outline"
+          label="Ajustes"
           onPress={() => alert('Ir a Ajustes')}
-          style={{
-            marginBottom: 20,
-            flexDirection: 'row',
-            alignItems: 'center'
-          }}>
-          <Icon
-            name="settings-outline"
-            size={22}
-            color="#333"
-            style={{marginRight: 10}}
-          />
-          <Text style={{fontWeight: 'bold'}}>Ajustes</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
+        />
+        <DrawerItem
+          icon="information-circle-outline"
+          label="Acerca de"
           onPress={() => alert('Acerca de esta app')}
-          style={{
-            marginBottom: 20,
-            flexDirection: 'row',
-            alignItems: 'center'
-          }}>
-          <Icon
-            name="information-circle-outline"
-            size={22}
-            color="#333"
-            style={{marginRight: 10}}
-          />
-          <Text style={{fontWeight: 'bold'}}>Acerca de</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
+        />
+        <DrawerItem
+          icon="close-outline"
+          label="Cerrar menú"
           onPress={() => props.navigation.closeDrawer()}
-          style={{
-            marginBottom: 20,
-            flexDirection: 'row',
-            alignItems: 'center'
-          }}>
-          <Icon
-            name="close-outline"
-            size={22}
-            color="#333"
-            style={{marginRight: 10}}
-          />
-          <Text style={{fontWeight: 'bold'}}>Cerrar menú</Text>
-        </TouchableOpacity>
+        />
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2025 TriviaApp</Text>
       </View>
     </DrawerContentScrollView>
   );
 }
 
+const DrawerItem = ({
+  icon,
+  label,
+  onPress,
+  color = '#333'
+}: {
+  icon: string;
+  label: string;
+  onPress: () => void;
+  color?: string;
+}) => (
+  <TouchableOpacity style={styles.item} onPress={onPress}>
+    <Icon name={icon} size={22} color={color} style={{marginRight: 15}} />
+    <Text style={[styles.itemText, {color}]}>{label}</Text>
+  </TouchableOpacity>
+);
+
+const styles = StyleSheet.create({
+  header: {
+    alignItems: 'center',
+    paddingVertical: 30,
+    backgroundColor: '#f0f4f8',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd'
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color: '#333'
+  },
+  menuSection: {
+    padding: 20
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12
+  },
+  itemText: {
+    fontSize: 16,
+    fontWeight: '600'
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 16
+  },
+  footer: {
+    marginTop: 'auto',
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    backgroundColor: '#f9f9f9'
+  },
+  footerText: {
+    fontSize: 12,
+    textAlign: 'center',
+    color: '#888'
+  }
+});
+
 export const DrawerNavigator = () => (
   <Drawer.Navigator
     drawerContent={props => <CustomDrawerContent {...props} />}
-    screenOptions={{headerShown: true}}>
-    <Drawer.Screen name="Tabs" component={BottomTabs} />
+    screenOptions={{headerShown: false}}>
+    <Drawer.Screen
+      name="Tabs"
+      component={BottomTabs}
+      options={{
+        drawerItemStyle: {display: 'none'}
+      }}
+    />
+
     <Drawer.Screen name="AuthScreen" component={AuthScreen} />
   </Drawer.Navigator>
 );
