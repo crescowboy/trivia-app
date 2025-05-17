@@ -75,16 +75,6 @@ export const HomeScreen = ({navigation}: any) => {
         <Text style={styles.sectionTitle}>Películas</Text>
         <PosterCarousel movies={nowPlaying} />
 
-        <TouchableOpacity
-          style={styles.authButton}
-          onPress={() => navigation.navigate('AuthScreen')}>
-          <Text style={styles.triviaButtonText}>Ir a Login/Register</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.triviaButtonText}>Cerrar sesión</Text>
-        </TouchableOpacity>
-
         <HorizontalCarousel
           movies={popular}
           title="Populares"
@@ -110,7 +100,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   mainTriviaButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#92E3A9',
     paddingVertical: 30,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -125,7 +115,7 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   triviaButtonSmall: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#92E3A9',
     paddingVertical: 20,
     paddingHorizontal: 10,
     borderRadius: 8,

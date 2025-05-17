@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert
 } from 'react-native';
+import {Image} from 'react-native';
 import {useAuth} from '../../../core/context/AuthContext';
 
 export const AuthScreen = ({navigation, route}: any) => {
@@ -61,6 +62,10 @@ export const AuthScreen = ({navigation, route}: any) => {
       <Text style={styles.title}>
         {isRegistering ? 'Registrarse' : 'Iniciar Sesión'}
       </Text>
+      <Image
+        source={require('../../../assets/Mobile-login-bro.png')}
+        style={{width: 300, height: 300, alignSelf: 'center'}}
+      />
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -125,7 +130,7 @@ const styles = StyleSheet.create({
     marginBottom: 15
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#92E3A9',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -140,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   toggleButtonText: {
-    color: '#007bff',
+    color: '#92E3A9',
     fontSize: 14,
     textDecorationLine: 'underline'
   }

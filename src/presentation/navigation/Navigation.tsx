@@ -1,14 +1,14 @@
 import {createStackNavigator} from '@react-navigation/stack';
-import {BottomTabs} from './BottomTabs';
+import {DrawerNavigator} from './DrawerNavigator';
 import {DetailsScreen} from '../screens/details/DetailsScreen';
 import {TriviaScreen} from '../screens/trivia/TriviaScreen';
-import {AuthScreen} from '../screens/auth/AuthScreen';
+import {TriviaDetailScreen} from '../screens/triviaDetails/TriviaDetailScreen';
+import {CreateTriviaScreen} from '../screens/createTrivia/CreateTriviaScreen';
 
 export type RootStackParams = {
-  MainTabs: undefined;
+  Drawer: undefined;
   Details: {movieId: number};
   TriviaScreen: {category: string};
-  AuthScreen: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParams>();
@@ -19,10 +19,11 @@ export const Navigation = () => {
       screenOptions={{
         headerShown: false
       }}>
-      <Stack.Screen name="MainTabs" component={BottomTabs} />
+      <Stack.Screen name="Drawer" component={DrawerNavigator} />
       <Stack.Screen name="Details" component={DetailsScreen} />
       <Stack.Screen name="TriviaScreen" component={TriviaScreen} />
-      <Stack.Screen name="AuthScreen" component={AuthScreen} />
+      <Stack.Screen name="TriviaDetail" component={TriviaDetailScreen} />
+      <Stack.Screen name="createTrivia" component={CreateTriviaScreen} />
     </Stack.Navigator>
   );
 };
